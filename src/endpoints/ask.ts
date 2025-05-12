@@ -1,9 +1,9 @@
 import { OpenAPIRoute } from "chanfana";
-import { string, z } from "zod";
 import { GoogleGenAI } from "@google/genai";
+import { string, z } from "zod";
+import { env } from "hono/adapter";
 
 import type { AppContext } from "../types";
-import { env } from "hono/adapter";
 
 export class Ask extends OpenAPIRoute {
   method = "get";
@@ -13,6 +13,9 @@ export class Ask extends OpenAPIRoute {
     summary: "Send a request to Gemini",
     request: {
       query: z.object({
+        k: string({
+          description: "Access key",
+        }).optional(),
         q: string({
           description: "Question",
         }),
@@ -31,7 +34,12 @@ export class Ask extends OpenAPIRoute {
   };
 
   async handle(c: AppContext) {
-    const { GEMINI_API_KEY } = env(c);
+    const { ACCESS_KEY, GEMINI_API_KEY } = env(c);
+
+    const queryData = (await this.getValidatedData()).query;
+
+    if (ACCESS_KEY !== queryData.k || queryData.k === undefined)
+      return new Response("Incorrect access key.");
 
     const ai = new GoogleGenAI({
       apiKey: GEMINI_API_KEY as string,
@@ -39,7 +47,7 @@ export class Ask extends OpenAPIRoute {
 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash-preview-04-17",
-      contents: (await this.getValidatedData()).query.q,
+      contents: queryData.q,
       config: {
         systemInstruction: "Do not use markdown, do not use bold letters",
       },
