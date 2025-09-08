@@ -16,11 +16,12 @@
       "zone_id": "dddddef93abdcd89b91e324f75ff28fd",
     },
   ],
-
-  /**
-   * Smart Placement
-   * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
-   */
+  "rules": [
+    {
+      "type": "Text",
+      "globs": ["**/*.txt"],
+    },
+  ],
   "placement": { "mode": "smart" },
 
   /**

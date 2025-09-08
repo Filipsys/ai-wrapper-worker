@@ -46,10 +46,11 @@ export class Ask extends OpenAPIRoute {
     });
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-04-17",
+      model: "gemini-2.5-flash",
       contents: queryData.q,
       config: {
-        systemInstruction: "Do not use markdown, do not use bold letters",
+        systemInstruction:
+          "Do not use markdown, do not use bold letters, do not use comments, do not explain your code. The response should only be returned as the output code snippet.",
       },
     });
 
